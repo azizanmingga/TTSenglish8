@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossword: The Elephant and Friends - SMPN 7 Sajira</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#bbf7d0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .tts-grid {
+            display: grid;
+            gap: 0;
+            background-color: #1f2937;
+            padding: 2px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+        }
+        .tts-cell {
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            border: 1px solid #d1d5db;
+        }
+        @media (max-width: 768px) {
+            .tts-cell {
+                width: 22px;
+                height: 22px;
+                font-size: 0.7rem;
+            }
+        }
+        .tts-cell.empty {
+            background-color: transparent;
+            border: none;
+        }
+        .tts-cell .number {
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            font-size: 0.5rem;
+            line-height: 1;
+            color: #4b5563;
+        }
+        .clue-item {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .clue-item:hover {
+            background-color: #dcfce3;
+            transform: translateX(5px);
+        }
+        .clue-item.answered {
+            text-decoration: line-through;
+            color: #9ca3af;
+            pointer-events: none;
+        }
+        
+        /* Custom Scrollbar for 1-screen fit */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #a7f3d0; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #34d399; 
+        }
+
+        /* Certificate Styles */
+        .cert-container {
+            font-family: 'Playfair Display', serif;
+            background: white;
+            border: 12px solid #166534;
+            outline: 4px solid #fcd34d;
+            outline-offset: -16px;
+            position: relative;
+        }
+        .cert-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 0L100 50L50 100L0 50L50 0Z" fill="%23f0fdf4" fill-opacity="0.5"/></svg>');
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .cert-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Print Settings */
+        @media print {
+            body { overflow: visible !important; background: white !important; }
+            body * { visibility: hidden; }
+            #certificate-screen, #certificate-screen * { visibility: visible; }
+            #certificate-screen {
+                position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+                padding: 0; margin: 0; display: flex !important;
+                align-items: center; justify-content: center; background: white !important;
+            }
+            .no-print { display: none !important; }
+            .cert-container {
+                border-width: 8px !important; width: 100% !important; height: 100% !important;
+                max-width: none !important; box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col text-gray-800">
+
+    <!-- 1. SETUP SCREEN -->
+    <div id="setup-screen" class="w-full h-full flex items-center justify-center p-4">
+        <div class="w-full max-w-lg bg-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 text-green-200 opacity-50 rotate-12">
+                <svg width="150" height="150" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16.5C21 16.5 20.5 15.5 19 15.5C17.5 15.5 17 16.5 17 16.5V17.5H16C15.45 17.5 15 17.05 15 16.5V11C15 9.35 13.65 8 12 8H9V5H14V3H9C7.9 3 7 3.9 7 5V8H5V10H7V16.5C7 18.98 9.02 21 11.5 21H16V22H18V21H19C20.1 21 21 20.1 21 19V16.5ZM9 10H12C12.55 10 13 10.45 13 11V15.5H9V10Z"/></svg>
+            </div>
+            <h1 class="text-3xl font-extrabold text-green-700 text-center mb-2">English Crossword</h1>
+            <h2 class="text-lg text-gray-600 text-center mb-6 font-semibold">The Elephant and Friends<br><span class="text-sm font-normal">Class VIII - SMP Negeri 7 Sajira</span></h2>
+            
+            <p class="text-sm text-gray-500 mb-6 text-center">Enter names for 4 players. The game is played in turns.</p>
+            
+            <div class="space-y-4 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Player 1</label>
+                    <input type="text" id="player1" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" placeholder="Name 1">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Player 2</label>
+                    <input type="text" id="player2" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" placeholder="Name 2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Player 3</label>
+                    <input type="text" id="player3" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" placeholder="Name 3">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Player 4</label>
+                    <input type="text" id="player4" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" placeholder="Name 4">
+                </div>
+            </div>
+            
+            <button onclick="startGame()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+                Start Game 🐘
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. GAME SCREEN (1 Screen Layout) -->
+    <div id="game-screen" class="hidden w-full h-full max-w-[1600px] mx-auto flex flex-col p-4 gap-4">
+        
+        <!-- Header & Stats (Compact) -->
+        <div class="bg-white p-3 rounded-xl shadow-md flex justify-between items-center shrink-0">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold text-green-700">Crossword: The Elephant and Friends</h1>
+                <p class="text-xs md:text-sm text-gray-600">SMP Negeri 7 Sajira</p>
+            </div>
+            
+            <div id="turn-indicator-box" class="bg-yellow-100 border-2 border-yellow-400 px-4 py-1 md:px-6 md:py-2 rounded-full shadow-sm animate-pulse">
+                <span class="font-bold text-yellow-800 text-sm md:text-base" id="current-turn-text">Turn: Player 1</span>
+            </div>
+        </div>
+
+        <!-- Main Workspace: Fits in remaining height -->
+        <div class="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
+            
+            <!-- Left Panel: Grid & Scores -->
+            <div class="md:w-2/3 flex flex-col gap-4 h-full">
+                
+                <!-- Grid Container (Takes most space) -->
+                <div class="bg-white p-2 rounded-xl shadow-md flex-1 overflow-auto flex justify-center items-center relative">
+                    <div id="crossword-grid" class="tts-grid relative"></div>
+                </div>
+
+                <!-- Scores (At the bottom of left panel) -->
+                <div class="bg-white p-3 rounded-xl shadow-md shrink-0">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-md text-gray-700">Scoreboard</h3>
+                        <span class="text-xs text-gray-500" id="progress-text">0/25 Words</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2" id="scoreboard">
+                        <!-- Score items injected via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Clues -->
+            <div class="md:w-1/3 flex flex-col bg-white rounded-xl shadow-md h-full overflow-hidden shrink-0">
+                <div class="p-4 border-b shrink-0 bg-green-50">
+                    <h3 class="font-bold text-lg text-green-700">Clues</h3>
+                    <p class="text-xs text-gray-600">Click on a clue or empty grid box to answer.</p>
+                </div>
+                
+                <div class="p-4 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+                    <div>
+                        <h4 class="font-bold text-sm text-gray-800 bg-gray-100 p-2 rounded mb-2 flex items-center gap-2 sticky top-0 shadow-sm z-10">
+                            <span>➡️</span> Across
+                        </h4>
+                        <ul id="clues-across" class="space-y-1 text-xs md:text-sm"></ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-sm text-gray-800 bg-gray-100 p-2 rounded mb-2 flex items-center gap-2 sticky top-0 shadow-sm z-10 mt-4">
+                            <span>⬇️</span> Down
+                        </h4>
+                        <ul id="clues-down" class="space-y-1 text-xs md:text-sm"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. GUESS MODAL -->
+    <div id="guess-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
+            <div class="bg-green-600 p-4 text-white text-center relative">
+                <h3 class="text-xl font-bold" id="modal-turn-title">Turn...</h3>
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-white hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4 text-center">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider mb-2" id="modal-clue-direction">Across 1</span>
+                    <p class="text-gray-700 font-medium text-base md:text-lg" id="modal-clue-text">The clue will appear here</p>
+                </div>
+                
+                <!-- Helper boxes to show word length -->
+                <div id="modal-word-boxes" class="flex flex-wrap gap-1 mb-4 justify-center"></div>
+
+                <div class="mb-4 relative">
+                    <input type="text" id="modal-input" autocomplete="off" class="w-full p-3 text-center text-xl font-bold uppercase tracking-widest border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-0 transition" placeholder="...">
+                </div>
+
+                <div id="modal-message" class="hidden text-center font-bold p-3 rounded mb-4 text-sm"></div>
+
+                <div class="flex gap-3">
+                    <button onclick="closeModal()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-xl transition">Cancel</button>
+                    <button onclick="submitGuess()" class="w-2/3 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg transition">Submit!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. CERTIFICATE SCREEN -->
+    <div id="certificate-screen" class="hidden w-full h-full flex items-center justify-center p-4 bg-gray-100 absolute top-0 left-0 z-40">
+        <div class="w-full max-w-4xl bg-white p-8 md:p-12 rounded-2xl shadow-2xl cert-container text-center">
+            <div class="cert-bg"></div>
+            <div class="cert-content flex flex-col items-center">
+                
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center text-3xl md:text-4xl">🏆</div>
+                    <div class="w-16 h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center text-3xl md:text-4xl">🐘</div>
+                </div>
+
+                <h1 class="text-3xl md:text-5xl font-extrabold text-green-800 mb-2 uppercase tracking-wide">Certificate of Achievement</h1>
+                <p class="text-base md:text-lg text-gray-600 font-medium mb-6 md:mb-8">Proudly presented to:</p>
+                
+                <h2 id="cert-winner-name" class="text-4xl md:text-6xl font-bold text-gray-800 mb-6 md:mb-8 border-b-4 border-yellow-400 pb-2 inline-block px-10">
+                    Winner Name
+                </h2>
+                
+                <p class="text-lg md:text-xl text-gray-700 mb-2 font-medium">As the <span class="font-bold text-green-700">1st Place Winner</span> of the English Crossword Puzzle</p>
+                <p class="text-xl md:text-2xl font-bold text-gray-800 mb-2">"The Elephant and Friends"</p>
+                <p class="text-md md:text-lg text-gray-600 mb-10">Class VIII - SMP Negeri 7 Sajira</p>
+                
+                <div class="flex justify-between w-full max-w-2xl mt-4 md:mt-8 px-4 md:px-8">
+                    <div class="text-center">
+                        <div class="border-b border-gray-400 w-32 md:w-40 h-8 mb-2"></div>
+                        <p class="text-xs md:text-sm font-bold text-gray-700">Subject Teacher</p>
+                    </div>
+                    <div class="text-center flex flex-col items-center justify-end">
+                        <p class="text-xs md:text-sm font-bold text-gray-700 mb-1" id="cert-date">Date</p>
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-[10px] md:text-xs shadow-lg border-2 border-yellow-500 transform rotate-12">
+                            SEAL
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 no-print flex gap-4">
+                    <button onclick="location.reload()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 md:py-3 px-4 md:px-6 rounded-lg transition">Play Again</button>
+                    <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 md:py-3 px-4 md:px-6 rounded-lg shadow-lg flex items-center gap-2 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print Certificate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // 50 English Clues based on the story "The Elephant and Friends"
+        const bankSoal = [
+            { word: "ELEPHANT", clue: "A large animal with a trunk wandering to find friends." },
+            { word: "FOREST", clue: "The place where the animals live and the elephant wandered." },
+            { word: "FRIENDS", clue: "What the elephant was looking for in the forest." },
+            { word: "MONKEY", clue: "The first animal the elephant met on a tree." },
+            { word: "TREE", clue: "Where the monkey was swinging." },
+            { word: "BIG", clue: "The monkey said the elephant is too ___." },
+            { word: "SWING", clue: "The elephant cannot ___ from trees like the monkey." },
+            { word: "ARROGANT", clue: "The attitude of the monkey who rejected the elephant." },
+            { word: "RABBIT", clue: "The shy animal with long ears the elephant met next." },
+            { word: "BURROW", clue: "The place where the rabbit plays, too small for the elephant." },
+            { word: "SHY", clue: "The rabbit's personality." },
+            { word: "FROG", clue: "The third animal, who can jump high." },
+            { word: "LEAP", clue: "The frog said the elephant is too big to ___ about." },
+            { word: "DISGRUNTLED", clue: "How the frog felt when asked (annoyed)." },
+            { word: "FOX", clue: "The sly animal the elephant met after the frog." },
+            { word: "FAST", clue: "The fox said the elephant can't run as ___ as him." },
+            { word: "SLY", clue: "The fox's personality." },
+            { word: "UPSET", clue: "How the elephant felt after being rejected by everyone." },
+            { word: "HEARTBROKEN", clue: "The elephant felt sad and ___." },
+            { word: "NEXT", clue: "The ___ day, animals were running for their lives." },
+            { word: "ANIMALS", clue: "The creatures living in the forest." },
+            { word: "RUNNING", clue: "The animals were ___ away to hide." },
+            { word: "BEAR", clue: "The great animal who warned about the tiger." },
+            { word: "TIGER", clue: "The ferocious animal trying to gobble everyone up." },
+            { word: "GOBBLE", clue: "The tiger is trying to ___ us all up!" },
+            { word: "HIDE", clue: "The animals ran away to ___ from the tiger." },
+            { word: "SAVE", clue: "The elephant wondered how to ___ everyone." },
+            { word: "EATING", clue: "The tiger kept ___ up whoever he could find." },
+            { word: "PLEASE", clue: "The elephant said, '___, Mr. Tiger...'" },
+            { word: "POOR", clue: "'...do not eat up these ___ animals.'" },
+            { word: "MIND", clue: "'___ your own business!' growled the tiger." },
+            { word: "BUSINESS", clue: "'Mind your own ___!'" },
+            { word: "FEROCIOUS", clue: "The personality of the tiger." },
+            { word: "CHOICE", clue: "The elephant had no ___ but to give the tiger a kick." },
+            { word: "HEFTY", clue: "The elephant gave the tiger a ___ kick." },
+            { word: "KICK", clue: "What the elephant gave to the tiger to scare him." },
+            { word: "FRIGHTENED", clue: "The tiger was ___ and ran for his life." },
+            { word: "LIFE", clue: "The tiger ran for his ___." },
+            { word: "ANNOUNCE", clue: "The elephant went back to ___ the good news." },
+            { word: "NEWS", clue: "The elephant brought good ___ to the animals." },
+            { word: "THANKED", clue: "All the animals ___ the elephant." },
+            { word: "BRAVE", clue: "They said the elephant is very ___." },
+            { word: "RIGHT", clue: "'You are just the ___ size to be our friend.'" },
+            { word: "SIZE", clue: "The animals finally accepted the elephant's ___." },
+            { word: "WANDERED", clue: "The elephant ___ into the forest." },
+            { word: "SEARCH", clue: "In ___ of friends." },
+            { word: "REPLIED", clue: "Answered (The arrogant monkey ___)." },
+            { word: "ASKED", clue: "Questioned (The elephant ___ him to be his friend)." },
+            { word: "PLAY", clue: "The rabbit said, 'You are too big to ___ in my burrow!'" },
+            { word: "GROWLED", clue: "The threatening sound the tiger made." }
+        ];
+
+        let players = [];
+        let currentPlayerIndex = 0;
+        let placedWords = [];
+        let targetWordsCount = 25;
+        let wordsAnswered = 0;
+        
+        let currentGuessWord = null;
+
+        // UI Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const certScreen = document.getElementById('certificate-screen');
+        const turnText = document.getElementById('current-turn-text');
+        const scoreboard = document.getElementById('scoreboard');
+        const crosswordGrid = document.getElementById('crossword-grid');
+        const progressText = document.getElementById('progress-text');
+        
+        // --- GAME START & STATE MANAGEMENT --- //
+        function startGame() {
+            const p1 = document.getElementById('player1').value.trim() || "Player 1";
+            const p2 = document.getElementById('player2').value.trim() || "Player 2";
+            const p3 = document.getElementById('player3').value.trim() || "Player 3";
+            const p4 = document.getElementById('player4').value.trim() || "Player 4";
+            
+            players = [
+                { id: 1, name: p1, score: 0, color: 'bg-blue-100 border-blue-500 text-blue-900' },
+                { id: 2, name: p2, score: 0, color: 'bg-red-100 border-red-500 text-red-900' },
+                { id: 3, name: p3, score: 0, color: 'bg-green-100 border-green-500 text-green-900' },
+                { id: 4, name: p4, score: 0, color: 'bg-purple-100 border-purple-500 text-purple-900' }
+            ];
+
+            setupScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            generateCrossword();
+            renderScoreboard();
+            updateTurnUI();
+        }
+
+        function renderScoreboard() {
+            scoreboard.innerHTML = '';
+            players.forEach((p, idx) => {
+                const isActive = idx === currentPlayerIndex;
+                const activeClasses = isActive ? `ring-2 ring-offset-1 ring-current border-2 ${p.color}` : 'border-2 border-transparent bg-gray-50 opacity-70';
+                
+                scoreboard.innerHTML += `
+                    <div class="rounded-lg p-2 text-center transition-all duration-300 ${activeClasses}">
+                        <div class="text-[10px] font-bold text-gray-500 mb-0.5 truncate">${p.name}</div>
+                        <div class="text-xl font-black ${isActive ? p.color.split(' ')[2] : 'text-gray-700'} leading-none">${p.score}</div>
+                    </div>
+                `;
+            });
+            progressText.innerText = `${wordsAnswered}/${targetWordsCount} Words`;
+        }
+
+        function updateTurnUI() {
+            const cp = players[currentPlayerIndex];
+            turnText.textContent = `Turn: ${cp.name}`;
+            renderScoreboard(); // refresh visual indicators
+        }
+
+        function nextTurn() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % 4;
+            updateTurnUI();
+        }
+
+        // --- CROSSWORD GENERATOR ALGORITHM --- //
+        function generateCrossword() {
+            const maxGridSize = 35;
+            let bestGrid = null;
+            let bestPlaced = [];
+
+            for(let attempt = 0; attempt < 100; attempt++) {
+                let grid = Array(maxGridSize).fill(null).map(() => Array(maxGridSize).fill(null));
+                let shuffledBank = [...bankSoal].sort(() => Math.random() - 0.5);
+                let currentPlaced = [];
+
+                let first = shuffledBank.shift();
+                let startX = Math.floor(maxGridSize/2 - first.word.length/2);
+                let startY = Math.floor(maxGridSize/2);
+                placeWord(grid, first.word, startX, startY, 0); 
+                currentPlaced.push({ ...first, x: startX, y: startY, dir: 0 });
+
+                for(let item of shuffledBank) {
+                    if(currentPlaced.length >= targetWordsCount) break;
+                    let bestPlacement = null;
+                    let word = item.word;
+
+                    for(let p of currentPlaced) {
+                        for(let i=0; i<word.length; i++) {
+                            for(let j=0; j<p.word.length; j++) {
+                                if(word[i] === p.word[j]) {
+                                    let dir = p.dir === 0 ? 1 : 0;
+                                    let x = dir === 0 ? p.x - i : p.x + j;
+                                    let y = dir === 0 ? p.y + j : p.y - i;
+
+                                    if(canPlace(grid, word, x, y, dir, maxGridSize)) {
+                                        bestPlacement = {x, y, dir};
+                                        break;
+                                    }
+                                }
+                            }
+                            if(bestPlacement) break;
+                        }
+                        if(bestPlacement) break;
+                    }
+
+                    if(bestPlacement) {
+                        placeWord(grid, word, bestPlacement.x, bestPlacement.y, bestPlacement.dir);
+                        currentPlaced.push({ ...item, x: bestPlacement.x, y: bestPlacement.y, dir: bestPlacement.dir });
+                    }
+                }
+
+                if(currentPlaced.length > bestPlaced.length) {
+                    bestPlaced = currentPlaced;
+                    bestGrid = grid;
+                }
+                
+                if(currentPlaced.length === targetWordsCount) break;
+            }
+
+            bestPlaced.sort((a, b) => {
+                if(a.y === b.y) return a.x - b.x;
+                return a.y - b.y;
+            });
+
+            let counter = 1;
+            let numberMap = {}; 
+            bestPlaced.forEach(p => {
+                let key = `${p.x},${p.y}`;
+                if(!numberMap[key]) numberMap[key] = counter++;
+                p.number = numberMap[key];
+                p.isAnswered = false; 
+            });
+
+            placedWords = bestPlaced;
+            targetWordsCount = placedWords.length;
+            wordsAnswered = 0;
+            buildVisualGrid(bestGrid, placedWords);
+        }
+
+        function canPlace(grid, word, x, y, dir, size) {
+            if(x < 0 || y < 0) return false;
+            if(dir === 0 && x + word.length > size) return false;
+            if(dir === 1 && y + word.length > size) return false;
+
+            if(dir === 0) {
+                if(x > 0 && grid[y][x-1] !== null) return false;
+                if(x + word.length < size && grid[y][x+word.length] !== null) return false;
+            } else {
+                if(y > 0 && grid[y-1][x] !== null) return false;
+                if(y + word.length < size && grid[y+word.length][x] !== null) return false;
+            }
+
+            for(let i=0; i<word.length; i++) {
+                let cx = x + (dir === 0 ? i : 0);
+                let cy = y + (dir === 1 ? i : 0);
+                
+                if(grid[cy][cx] !== null && grid[cy][cx] !== word[i]) return false;
+                
+                if(grid[cy][cx] === null) {
+                    if(dir === 0) {
+                        if(cy > 0 && grid[cy-1][cx] !== null) return false;
+                        if(cy < size-1 && grid[cy+1][cx] !== null) return false;
+                    } else {
+                        if(cx > 0 && grid[cy][cx-1] !== null) return false;
+                        if(cx < size-1 && grid[cy][cx+1] !== null) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function placeWord(grid, word, x, y, dir) {
+            for(let i=0; i<word.length; i++) {
+                let cx = x + (dir === 0 ? i : 0);
+                let cy = y + (dir === 1 ? i : 0);
+                grid[cy][cx] = word[i];
+            }
+        }
+
+        function buildVisualGrid(grid, placed) {
+            let minX = 999, minY = 999, maxX = 0, maxY = 0;
+            placed.forEach(p => {
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.dir === 0 ? p.x + p.word.length - 1 : p.x);
+                maxY = Math.max(maxY, p.dir === 1 ? p.y + p.word.length - 1 : p.y);
+            });
+
+            minX = Math.max(0, minX - 1);
+            minY = Math.max(0, minY - 1);
+            maxX = Math.min(grid[0].length - 1, maxX + 1);
+            maxY = Math.min(grid.length - 1, maxY + 1);
+
+            let width = maxX - minX + 1;
+            let height = maxY - minY + 1;
+
+            crosswordGrid.style.gridTemplateColumns = `repeat(${width}, minmax(0, 1fr))`;
+            crosswordGrid.innerHTML = '';
+
+            let cellMap = {};
+            placed.forEach(p => {
+                for(let i=0; i<p.word.length; i++) {
+                    let cx = p.x + (p.dir===0 ? i : 0);
+                    let cy = p.y + (p.dir===1 ? i : 0);
+                    let key = `${cx},${cy}`;
+                    if(!cellMap[key]) cellMap[key] = { char: p.word[i], words: [], startNumber: null };
+                    cellMap[key].words.push(p);
+                    if(i === 0) cellMap[key].startNumber = p.number;
+                }
+            });
+
+            for(let y = minY; y <= maxY; y++) {
+                for(let x = minX; x <= maxX; x++) {
+                    let key = `${x},${y}`;
+                    let cellDiv = document.createElement('div');
+                    
+                    if(cellMap[key]) {
+                        cellDiv.className = 'tts-cell cursor-pointer hover:bg-green-50 transition-colors';
+                        cellDiv.id = `cell-${x}-${y}`;
+                        
+                        if(cellMap[key].startNumber !== null) {
+                            let numDiv = document.createElement('span');
+                            numDiv.className = 'number';
+                            numDiv.innerText = cellMap[key].startNumber;
+                            cellDiv.appendChild(numDiv);
+                        }
+
+                        let charSpan = document.createElement('span');
+                        charSpan.className = 'letter hidden';
+                        charSpan.innerText = cellMap[key].char;
+                        cellDiv.appendChild(charSpan);
+
+                        cellDiv.onclick = () => {
+                            let targetWord = cellMap[key].words.find(w => !w.isAnswered) || cellMap[key].words[0];
+                            if(!targetWord.isAnswered) openModal(targetWord);
+                        };
+                    } else {
+                        cellDiv.className = 'tts-cell empty';
+                    }
+                    crosswordGrid.appendChild(cellDiv);
+                }
+            }
+            renderClues();
+        }
+
+        function renderClues() {
+            const listAcross = document.getElementById('clues-across');
+            const listDown = document.getElementById('clues-down');
+            listAcross.innerHTML = '';
+            listDown.innerHTML = '';
+
+            let across = placedWords.filter(p => p.dir === 0).sort((a,b)=>a.number-b.number);
+            let down = placedWords.filter(p => p.dir === 1).sort((a,b)=>a.number-b.number);
+
+            across.forEach(p => {
+                let li = document.createElement('li');
+                li.className = `clue-item p-1.5 rounded flex gap-2 ${p.isAnswered ? 'answered bg-gray-50' : 'hover:bg-green-100 bg-white'}`;
+                li.innerHTML = `<span class="font-bold w-5 shrink-0">${p.number}.</span> <span class="leading-tight">${p.clue}</span>`;
+                if(!p.isAnswered) li.onclick = () => openModal(p);
+                listAcross.appendChild(li);
+            });
+
+            down.forEach(p => {
+                let li = document.createElement('li');
+                li.className = `clue-item p-1.5 rounded flex gap-2 ${p.isAnswered ? 'answered bg-gray-50' : 'hover:bg-green-100 bg-white'}`;
+                li.innerHTML = `<span class="font-bold w-5 shrink-0">${p.number}.</span> <span class="leading-tight">${p.clue}</span>`;
+                if(!p.isAnswered) li.onclick = () => openModal(p);
+                listDown.appendChild(li);
+            });
+        }
+
+        // --- GUESS MODAL LOGIC --- //
+        const modal = document.getElementById('guess-modal');
+        const modalInput = document.getElementById('modal-input');
+        const modalMessage = document.getElementById('modal-message');
+
+        function openModal(wordObj) {
+            currentGuessWord = wordObj;
+            document.getElementById('modal-turn-title').textContent = `Turn: ${players[currentPlayerIndex].name}`;
+            document.getElementById('modal-clue-direction').textContent = `${wordObj.dir === 0 ? 'Across' : 'Down'} ${wordObj.number}`;
+            document.getElementById('modal-clue-text').textContent = wordObj.clue;
+            
+            const boxesContainer = document.getElementById('modal-word-boxes');
+            boxesContainer.innerHTML = '';
+            for(let i=0; i<wordObj.word.length; i++) {
+                let bx = document.createElement('div');
+                bx.className = 'w-7 h-7 md:w-8 md:h-8 border-2 border-gray-400 rounded flex items-center justify-center font-bold text-gray-500 bg-gray-50 uppercase text-sm md:text-base';
+                
+                let cx = wordObj.x + (wordObj.dir === 0 ? i : 0);
+                let cy = wordObj.y + (wordObj.dir === 1 ? i : 0);
+                let cellEl = document.querySelector(`#cell-${cx}-${cy} .letter`);
+                if(cellEl && !cellEl.classList.contains('hidden')) {
+                    bx.innerText = wordObj.word[i];
+                    bx.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                }
+                boxesContainer.appendChild(bx);
+            }
+
+            modalInput.value = '';
+            modalMessage.className = 'hidden';
+            modal.classList.remove('hidden');
+            
+            setTimeout(() => modalInput.focus(), 100);
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        modalInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') submitGuess();
+        });
+
+        function submitGuess() {
+            let guess = modalInput.value.trim().toUpperCase();
+            if(guess === '') return;
+
+            if(guess === currentGuessWord.word) {
+                currentGuessWord.isAnswered = true;
+                wordsAnswered++;
+                players[currentPlayerIndex].score += 10;
+                
+                for(let i=0; i<currentGuessWord.word.length; i++) {
+                    let cx = currentGuessWord.x + (currentGuessWord.dir === 0 ? i : 0);
+                    let cy = currentGuessWord.y + (currentGuessWord.dir === 1 ? i : 0);
+                    let cellLetter = document.querySelector(`#cell-${cx}-${cy} .letter`);
+                    if(cellLetter) {
+                        cellLetter.classList.remove('hidden');
+                        cellLetter.classList.add('text-green-700', 'animate-pulse');
+                        setTimeout(() => cellLetter.classList.remove('animate-pulse'), 1000);
+                    }
+                }
+                
+                modalMessage.textContent = 'Correct Answer! +10 Points';
+                modalMessage.className = 'block bg-green-100 text-green-800 font-bold p-3 rounded mb-4 text-sm';
+                
+                setTimeout(() => {
+                    closeModal();
+                    renderClues();
+                    renderScoreboard();
+                    checkWinCondition();
+                    nextTurn();
+                }, 1000);
+
+            } else {
+                modalMessage.textContent = 'Wrong Answer!';
+                modalMessage.className = 'block bg-red-100 text-red-800 font-bold p-3 rounded mb-4 text-sm';
+                
+                modalInput.classList.add('translate-x-2');
+                setTimeout(() => modalInput.classList.remove('translate-x-2'), 100);
+                
+                setTimeout(() => {
+                    closeModal();
+                    nextTurn();
+                }, 1200);
+            }
+        }
+
+        function checkWinCondition() {
+            if(wordsAnswered >= targetWordsCount) {
+                setTimeout(showCertificate, 500);
+            }
+        }
+
+        function showCertificate() {
+            let winner = players.reduce((prev, current) => (prev.score > current.score) ? prev : current);
+            
+            let today = new Date();
+            let dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            document.getElementById('cert-winner-name').textContent = winner.name;
+            document.getElementById('cert-date').textContent = dateStr;
+
+            gameScreen.classList.add('hidden');
+            certScreen.classList.remove('hidden');
+            
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#fde047', '#4ade80', '#60a5fa', '#f87171', '#c084fc'];
+            for(let i=0; i<150; i++) {
+                let conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.width = '10px';
+                conf.style.height = '10px';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.top = '-10px';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.opacity = Math.random();
+                conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+                conf.style.zIndex = '9999';
+                conf.style.pointerEvents = 'none';
+                document.body.appendChild(conf);
+
+                let duration = Math.random() * 3000 + 2000;
+                conf.animate([
+                    { transform: `translate3d(0,0,0) rotate(0)`, opacity: 1 },
+                    { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                ], {
+                    duration: duration,
+                    easing: 'cubic-bezier(.37,0,.63,1)',
+                    fill: 'forwards'
+                });
+
+                setTimeout(() => conf.remove(), duration);
+            }
+        }
+    </script>
+</body>
+</html>
